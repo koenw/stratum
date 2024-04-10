@@ -27,6 +27,26 @@ Manage your *Raspberry Pi Time Servers* by [building custom images](#building-a-
 from a local [Nix flake](#using-nix-flakes).
 
 
+## Table of Contents
+
+* [Features](#features)
+* [Getting Started](#getting-started)
+* [How GNSS/GPS Communicates Time](#how-gnssgps-communicates-time)
+    * [How GNSS Receivers Communicate Time](#how-gnss-receivers-communicate-time)
+    * [PPS](#pps)
+* [Hardware Overview](#hardware-overview)
+    * [Raspberry Pi Models](#raspberry-pi-models)
+    * [GNSS (GPS) Receivers](#gnss-gps-receivers)
+        * [Suggested Receivers](#suggested-receivers)
+        * [Detailed Considerations](#detailed-considerations)
+        * [Connecting the GNSS Receiver to the Raspberry Pi](#connecting-the-gnss-receiver-to-the-raspberry-pi)
+    * [Real Time Clock](#real-time-clock)
+        * [Connecting the RTC to the Raspberry Pi](#connecting-the-rtc-to-the-raspberry-pi)
+* [Customization & Management](#customization--management)
+    * [Building a Custom Image](#building-a-custom-image)
+    * [Using Nix Flakes](#using-nix-flakes)
+* [Known Limitations / Gotcha's](#known-limitations--gotchas)
+
 ## Features
 
 * [x] Achieve < ±1uSec clock accuracy, compared to ±1mSec with NTP
@@ -54,7 +74,7 @@ from a local [Nix flake](#using-nix-flakes).
 * Continue your journey by [building pre-configured images](#building-a-custom-image), [Managing your system using Nix Flakes](#using-nix-flakes) or perusing the [options reference](./docs/options.md)
 
 
-## How GNSS/GPS communicates time
+## How GNSS/GPS Communicates Time
 
 At the core of GNSS/GPS is time keeping. The GNSS satellites contain highly
 accurate atomic clocks that are kept in sync with each other.
@@ -85,7 +105,7 @@ shift](https://www.e-education.psu.edu/geog862/node/1786)) and what satellites
 share about how they perceive other satellites.
 
 
-### How GNSS receivers communicate time
+### How GNSS Receivers Communicate Time
 
 Most GNSS receivers use a variant of the
 [NMEA](https://en.wikipedia.org/wiki/NMEA_0183) protocol to communicate over
@@ -161,7 +181,7 @@ The following hardware will make for a stratum 1 time server:
     reboots and decreases clock drift.
 
 
-### Raspberry Pi models
+### Raspberry Pi Models
 
 I've only tested the Raspberry Pi 4 because that's what I have, though adding
 support for other models should be straight forward. Feel free to let me know
@@ -180,7 +200,7 @@ protocols (over the USB, serial or bluetooth line) understood by gpsd, so
 unless you happen to find some weird outlier, things should "just work".
 
 
-#### Suggested receivers
+#### Suggested Receivers
 
 | Name            |€€€| Interfaces | PPS Pin | Channels | Frequencies | Reported accuracy |
 |---              |:---:|:---             |:---:|:---:|:---:     |:---:|
@@ -189,7 +209,7 @@ unless you happen to find some weird outlier, things should "just work".
 | ATGM336H        | € | UART, SPI, I²C  | Y | 32 | L1       | 30ns |
 
 
-#### Detailed considerations
+#### Detailed Considerations
 
 TL;DR: Just pick one using UART (serial) protocol and a separate PPS pin.
 
@@ -236,7 +256,7 @@ more sensitive receiver.
 </details>
 
 
-#### Connecting the GNSS receiver to the Raspberry Pi
+#### Connecting the GNSS Receiver to the Raspberry Pi
 
 This assumes a UART (serial) GNSS receiver, which uses 4 pins plus hopefully an
 additional pin for PPS:
@@ -290,7 +310,7 @@ into the Raspberry Pi without needing any wires.
 
 ## Customization & Management
 
-### Building a custom image
+### Building a Custom Image
 
 The recommended way to install a new Raspberry Pi Time Server is to bootstrap
 the system by building a custom image that will have your network and users
@@ -365,7 +385,7 @@ To build the SD image for the *pitime* system in the above `flake.nix`, run
 `nix build '.#nixosConfigurations.pitime.config.system.build.sdImage'`.
 
 
-### Using Nix flakes
+### Using Nix Flakes
 
 After bootstrapping your Raspberry Pi using the initial SD image you can make
 further changes by simply deploying from the same `flake.nix`:
@@ -403,7 +423,7 @@ module (otherwise this flake can be identical to the one above):
 ```
 
 
-## Known limitations / Gotcha's
+## Known Limitations / Gotcha's
 
 * __Fresh images require up-to-date (U-boot) firmware to boot__ and might be unable
   to boot on devices with older firmware. If that happens, update the firmware
