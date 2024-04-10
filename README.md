@@ -250,7 +250,6 @@ additional pin for PPS:
 | PPS               | The [PPS](https://en.wikipedia.org/wiki/Pulse-per-second_signal) signal | Pin 12 (GPIO 18, *PCM CLK*) |
 
 
-
 ### Real Time Clock
 
 A [RTC](https://en.wikipedia.org/wiki/Real-time_clock) or *Real Time Clock*
