@@ -54,6 +54,10 @@ with lib;
 
     environment.systemPackages = with pkgs; [
       curl
+      cacert
+      openssl
+      git
+      vim
     ];
 
     # Remove the warning about unset mail since we're not moving software raid
