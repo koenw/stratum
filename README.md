@@ -65,7 +65,8 @@ from a local [Nix flake](#using-nix-flakes).
 
 * Attach a GNSS module like the GT-U7, Waveshare L67K or ATGM336H to your Raspberry Pi. See [GNSS Receivers](#gnssgpsreceivers) for more details.
 * (Optional) Additionally attach a RTC. See [Real Time Clocks](#real-time-clock) for more details.
-* Download a pre-build stratum SD image or [build your own custom image](#building-a-custom-image)
+* Run `nix build 'github:koenw/stratum#nixosConfigurations.sdImage.config.system.build.sdImage'`
+  to build the SD image or [build your own custom image](#building-a-custom-image)
 * Write the image to an SD card
 * Boot your Raspberry Pi from the SD card
 * Permit some time for the receiver to get a fix
@@ -312,7 +313,7 @@ into the Raspberry Pi without needing any wires.
 
 ### Building a Custom Image
 
-The recommended way to install a new Raspberry Pi Time Server is to bootstrap
+The recommended way to install a new *Raspberry Pi Time Server* is to bootstrap
 the system by building a custom image that will have your network and users
 pre-configured. After the initial boot you'll able to manage your system from a
 `flake.nix` as usual.
@@ -324,7 +325,9 @@ options.
 #### Example `flake.nix`
 
 The build a custom image from a `flake.nix`, simply include the
-`stratum.nixosModules.sdImage` module in the *modules* section of your *nixosSystem*:
+`stratum.nixosModules.sdImage` module in the *modules* section of your
+*nixosSystem*. Here is an example of a `flake.nix` that includes some network
+and user configuration:
 
 ```nix
 {
@@ -392,18 +395,15 @@ further changes by simply deploying from the same `flake.nix`:
 
 `nixos-rebuild switch --target-host 2001:db8:babe:babe::1234 --use-remote-sudo --flake '.#pitime'`
 
+Now that you have a running system the `stratum.nixosModules.sdImage` module is
+no longer needed and can be removed from your configuration, e.g. to get rid of
+the initial *stratum* local user.
+
 See the [options reference](./docs/options.md) for an overview of available
 options.
 
-> Now that you have a running system the `stratum.nixosModules.sdImage` module
-> is no longer needed and can be removed from your configuration, e.g. to get
-> rid of the initial *stratum* local user.
-
 
 #### Example `flake.nix`
-
-After the initial bootstrap you can remove the `stratum.nixosModules.sdImage`
-module (otherwise this flake can be identical to the one above):
 
 ```nix
 (...)
@@ -411,11 +411,24 @@ module (otherwise this flake can be identical to the one above):
       system = "aarch64-linux";
       modules = [
         # Uncomment to generate custom SD image
-        #stratum.nixosModules.sdImage
+        # stratum.nixosModules.sdImage
         stratum.nixosModules.stratum
         ({config, pkgs, lib, ...}:
         {
-          (...)
+          stratum = {
+            enable = true;
+            ntp.allowedIPv6Ranges = [
+              { address = "fe80::"; prefixLength = 10; }
+              { address = "2001:db8:babe:babe::"; prefixLength = 64; }
+            ];
+            ntp.servers = [
+              "1.pool.ntp.org"
+              "2.pool.ntp.org"
+              "3.pool.ntp.org"
+            ];
+            gps.serial.offset = "0.119";
+            i2c-rtc.enable = true;
+          };
         })
       ];
     };
