@@ -33,6 +33,7 @@
 
     packages = forAllDevSystems ( { pkgs }: {
       default = self.nixosConfigurations.sdImage.config.system.build.sdImage;
+      mdDocs = pkgs.callPackage ./modules/docs.nix {};
     });
 
     devShells = forAllDevSystems ( { pkgs }: {

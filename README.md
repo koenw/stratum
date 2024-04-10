@@ -51,7 +51,7 @@ from a local [Nix flake](#usingnixflakes).
 * Permit some time for the receiver to get a fix
 * Congratulations! Circumstances permitting, you now have a stratum 1 time server :)
 * (When using the pre-build image) login on the console using the *stratum* username
-* Continue your journey by [building pre-configured images](#buildingacustomimage) or [Managing your system using Nix Flakes](#usingnixflakes)
+* Continue your journey by [building pre-configured images](#buildingacustomimage), [Managing your system using Nix Flakes](#usingnixflakes) or perusing the [options reference](./docs/options.md)
 
 
 ## How GNSS/GPS communicates time
@@ -297,6 +297,9 @@ the system by building a custom image that will have your network and users
 pre-configured. After the initial boot you'll able to manage your system from a
 `flake.nix` as usual.
 
+See the [options reference](./docs/options.md) for an overview of available
+options.
+
 
 #### Example `flake.nix`
 
@@ -364,13 +367,17 @@ To build the SD image for the *pitime* system in the above `flake.nix`, run
 
 ### Using Nix flakes
 
-After bootstrapping your Raspberry Pi using the initial SD image you can make further changes by simply deploying from the same `flake.nix`:
+After bootstrapping your Raspberry Pi using the initial SD image you can make
+further changes by simply deploying from the same `flake.nix`:
 
 `nixos-rebuild switch --target-host 2001:db8:babe:babe::1234 --use-remote-sudo --flake '.#pitime'`
 
-Now that you have a running system the `stratum.nixosModules.sdImage` module is
-no longer needed and can be removed from your configuration, e.g. to get rid of
-the initial *stratum* local user.
+See the [options reference](./docs/options.md) for an overview of available
+options.
+
+> Now that you have a running system the `stratum.nixosModules.sdImage` module
+> is no longer needed and can be removed from your configuration, e.g. to get
+> rid of the initial *stratum* local user.
 
 
 #### Example `flake.nix`

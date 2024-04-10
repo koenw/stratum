@@ -7,9 +7,13 @@ let
   };
 
   optionsDoc = nixosOptionsDoc {
-    inherit (eval) options;
+    options = eval.options;
   };
 in
   runCommand "options-doc.md" {} ''
-    cat ${optionsDoc.optionsCommonMark} >> $out
+    cat <<EOF - ${optionsDoc.optionsCommonMark} > $out
+    # Stratum options
+
+
+    EOF
   ''

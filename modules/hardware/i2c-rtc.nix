@@ -3,33 +3,6 @@ with lib;
 let
   cfg = config.stratum.i2c-rtc;
 in {
-  options.stratum.i2c-rtc = {
-    enable = mkEnableOption (mdDoc "I2C Real Time Clock support");
-
-    model = mkOption {
-      type = types.str;
-      default = "ds3231";
-      example = "ds1307";
-      description = ''
-      This will be passed to the kernel driver. If your model isn't directly known by the kernel, you might get lucky using the "ds1307" model string as fallback.
-      '';
-    };
-
-    address = mkOption {
-      type = types.str;
-      default = "0x68";
-      description = ''
-      Detect with `i2cdetect <bus>`
-      '';
-    };
-
-    bus = mkOption {
-      type = types.ints.positive;
-      default = 3;
-      description = ''
-      '';
-    };
-  };
 
   config = mkIf cfg.enable {
     hardware.i2c.enable = true;

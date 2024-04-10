@@ -30,19 +30,26 @@ with lib;
 
     services.getty.helpLine = ''
 
-      The 'stratum' account has an empty password.
+      Welcome to the "stratum" installation image.
 
-      Use `sudo` to become root.
+      The "stratum" account has an empty password. Use `sudo` to become
+      root.
 
-      To login over ssh add your public key to /home/stratum/.ssh/authorized_keys:
+      To login over ssh add your public key to /home/stratum/.ssh/authorized_keys, e.g.:
 
         mkdir -m 700 ~/.ssh
         curl https://github.com/<username>.keys >> ~/.ssh/authorized_keys
         chmod 600 ~/.ssh/authorized_keys
 
-      To make changes to the system configuration, edit
-      /etc/nixos/configuration.nix and run `nixos-rebuild switch`. See the
-      NixOS manual for details.
+      To make changes to the system configuration either
+        1) Build a new custom image
+        2) Manage the system using Nix flakes
+
+      See README.md at https://github/koenw/stratum and the NixOS documentation
+      for more details.
+
+      My ip addresses are:
+      $(${pkgs.iproute2}/bin/ip a sh dev end0 |${pkgs.gawk}/bin/awk '/^\s+inet[6 ]/ {print $2}')
     '';
 
     environment.systemPackages = with pkgs; [

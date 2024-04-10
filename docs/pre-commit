@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# This script will update the nixos options docs at ./docs/options.md if any
+# changes to the option definitions were made.
+
+set -eu
+
+die() {
+  echo $* >/dev/stderr
+
+  cat - <<EOF >/dev/stderr
+If you made some changes to module options you can update the option docs like
+so:
+
+  nix build '.#mdDocs' && cat ./result > ./docs/options.md
+EOF
+
+  exit 1
+}
+
+nix build '.#mdDocs'
+check1=$(md5sum ./result)
+check2=$(md5sum ./docs/options.md 2>/dev/null|| die "./docs/options.md doesn't seem to exist")
+
+test "$check1" != "$check2" || die "./docs/options.md seems to be out-of-date"
