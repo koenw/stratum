@@ -5,7 +5,7 @@ NixOS + Raspberry Pi + GNSS (GPS) receiver = Stratum
 Easily customizable images for the Raspberry Pi make running a highly accurate
 [stratum 1][ntporg-stratum-1] time server accessible and practical. All you
 need is a Raspberry Pi, a cheap GNSS receiver and some time (hehehe) to [get
-started](#gettingstarted).
+started](#getting-started).
 
 [ntporg-stratum-1]: https://www.ntp.org/ntpfaq/ntp-s-algo/#5115-what-is-a-stratum-1-server "What is a stratum 1 server?"
 [build-custom-image-howto]: #custom-images
@@ -23,8 +23,8 @@ predictable connections (like most WANs).
 Serving this time locally over [NTP][ntp] allows you to keep very accurate time on
 your network, even independent of the internet.
 
-Manage your *Raspberry Pi Time Servers* by [building custom images](#buildingacustomimage) or
-from a local [Nix flake](#usingnixflakes).
+Manage your *Raspberry Pi Time Servers* by [building custom images](#building-a-custom-image) or
+from a local [Nix flake](#using-nix-flakes).
 
 
 ## Features
@@ -44,14 +44,14 @@ from a local [Nix flake](#usingnixflakes).
 ## Getting Started
 
 * Attach a GNSS module like the GT-U7, Waveshare L67K or ATGM336H to your Raspberry Pi. See [GNSS Receivers](#gnssgpsreceivers) for more details.
-* (Optional) Additionally attach a RTC. See [Real Time Clocks](#realtimeclock) for more details.
-* Download a pre-build stratum SD image or [build your own custom image](#buildingacustomimage)
+* (Optional) Additionally attach a RTC. See [Real Time Clocks](#real-time-clock) for more details.
+* Download a pre-build stratum SD image or [build your own custom image](#building-a-custom-image)
 * Write the image to an SD card
 * Boot your Raspberry Pi from the SD card
 * Permit some time for the receiver to get a fix
 * Congratulations! Circumstances permitting, you now have a stratum 1 time server :)
 * (When using the pre-build image) login on the console using the *stratum* username
-* Continue your journey by [building pre-configured images](#buildingacustomimage), [Managing your system using Nix Flakes](#usingnixflakes) or perusing the [options reference](./docs/options.md)
+* Continue your journey by [building pre-configured images](#building-a-custom-image), [Managing your system using Nix Flakes](#using-nix-flakes) or perusing the [options reference](./docs/options.md)
 
 
 ## How GNSS/GPS communicates time
@@ -138,7 +138,7 @@ Second* is a separate output signal on a dedicated pin characterized by a very
 abrupt rising or falling edge that repeats once per second. This is used by the
 GNSS receiver to accurately communicate the edge of each second and if we
 combine this with the timing information from the NMEA sentences we can
-(almost<sup>[1](#knownlimitationsgotchas)</sup>) rely on GNSS alone to bootstrap our sense-of-time.
+(almost<sup>[1](#known-limitations--gotchas)</sup>) rely on GNSS alone to bootstrap our sense-of-time.
 
 
 ## Hardware Overview
@@ -449,7 +449,7 @@ module (otherwise this flake can be identical to the one above):
   receiver has found a fix and chrony is synced to the GNSS clock, by default
   chrony only updates the system clock in small steps to not upset software
   with big time jumps. Use `chronyc makestep` to set the system clock right
-  once. A [RTC](#realtimeclock) can prevent this issue recurring by keeping the
+  once. A [RTC](#real-time-clock) can prevent this issue recurring by keeping the
   system clock reasonably close.
 
 
