@@ -473,10 +473,10 @@ options.
   to 0. At the time of writing we're in the 3rd epoch and the next rollover
   will occur in November 2038.
 
-      Without outside help (e.g. manually or by the NTP protocol) many receivers
-      default to a hardcoded epoch, which without firmware updates might be out-of-date.
+  Without outside help (e.g. manually or by the NTP protocol) many receivers
+  default to a hardcoded epoch, which without firmware updates might be out-of-date.
 
-      Newer protocols have longer epochs but are not yet widely supported.
+  Newer protocols have longer epochs but are not yet widely supported.
 
 * __Initial system clock sync can take a long time.__ Even after the GNSS
   receiver has found a fix and chrony is synced to the GNSS clock, by default
