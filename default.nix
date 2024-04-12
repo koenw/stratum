@@ -2,29 +2,6 @@
 with lib;
 let
   cfg = config.stratum;
-
-  addrOpts = v:
-    assert v == 4 || v == 6;
-    {
-      options = {
-        address = mkOption {
-          type = types.str;
-          description = lib.mdDoc ''
-            IPv${toString v} address of the interface. Leave empty to configure the
-            interface using DHCP.
-          '';
-        };
-
-        prefixLength = mkOption {
-          type = types.addCheck types.int
-            (n: n >= 0 && n <= (if v == 4 then 32 else 128));
-          description = lib.mdDoc ''
-            Subnet mask of the interface, specified as the number of
-            bits in the prefix (`${if v == 4 then "24" else "64"}`).
-          '';
-        };
-      };
-    };
 in {
   config = mkIf cfg.enable {
     systemd.enableEmergencyMode = mkDefault false;
@@ -43,6 +20,10 @@ in {
       pps-tools
       dtc
     ];
+
+    environment.etc."stratum/flake.nix".source = ./flake.nix.example;
+    environment.etc."stratum/README.md".source = ./README.md;
+    environment.etc."stratum/options.md".source = ./docs/options.md;
 
     system.stateVersion = "24.05";
   };

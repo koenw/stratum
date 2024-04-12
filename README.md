@@ -31,9 +31,12 @@ from a local [Nix flake](#using-nix-flakes).
 
 * [Features](#features)
 * [Getting Started](#getting-started)
-* [Customization & Management](#customization--management)
-    * [Building a Custom Image](#building-a-custom-image)
-    * [Using Nix Flakes](#using-nix-flakes)
+* [Installation & Configuration](#installation--configuration)
+    * [Installation](#installation)
+        * [Example `flake.nix` for a Custom Image](#example-flakenix-for-a-custom-image)
+    * [Configuration Using Nix Flakes](#configuration-using-nix-flakes)
+        * [Example `flake.nix`](#example-flakenix)
+        * [Configuring Locally](#configuring-locally)
 * [Hardware Overview](#hardware-overview)
     * [Raspberry Pi Models](#raspberry-pi-models)
     * [GNSS (GPS) Receivers](#gnss-gps-receivers)
@@ -65,7 +68,7 @@ from a local [Nix flake](#using-nix-flakes).
 
 * Attach a GNSS module like the GT-U7, Waveshare L67K or ATGM336H to your Raspberry Pi. See [GNSS Receivers](#gnssgpsreceivers) for more details.
 * (Optional) Additionally attach a RTC. See [Real Time Clocks](#real-time-clock) for more details.
-* Run `nix build 'github:koenw/stratum#nixosConfigurations.sdImage.config.system.build.sdImage'`
+* Run `nix build github:koenw/stratum`
   to build the SD image or [build your own custom image](#building-a-custom-image)
 * Write the image to an SD card
 * Boot your Raspberry Pi from the SD card
@@ -75,17 +78,18 @@ from a local [Nix flake](#using-nix-flakes).
 * Continue your journey by [building pre-configured images](#building-a-custom-image), [Managing your system using Nix Flakes](#using-nix-flakes) or perusing the [options reference](./docs/options.md)
 
 
-## Customization & Management
+## Installation & Configuration
 
 Configuration of the system and the SD image is done using [Nix
 flakes](https://nixos.wiki/wiki/Flakes).
 
-The idea is to include `stratum.nixosModules.stratum` module which gives you
-access to all the magic. See the [options reference](./docs/options.md) for a
-detailed overview of the (stratum specific) configuration options.
+Just include `stratum.nixosModules.stratum` module which gives you access to
+all the magic. See the [options reference](./docs/options.md) for a detailed
+overview of the (stratum specific) configuration options, and the [example
+`flake.nix`](./flake.nix.example) for an example.
 
 
-### Building a Custom Image
+### Installation
 
 The recommended way to install a new *Raspberry Pi Time Server* is to bootstrap
 the system by building a custom image that will have your network and users
@@ -95,8 +99,12 @@ pre-configured. After the initial boot you'll able to manage your system from a
 See the [options reference](./docs/options.md) for an overview of available
 options.
 
+Alternatively, you can use the standard SD image, build with `nix build
+github:koenw/stratum`, but you'll have to login using the console instead of
+ssh (The user *stratum* has an empty password).
 
-#### Example `flake.nix`
+
+#### Example `flake.nix` for a Custom Image
 
 The build a custom image from a `flake.nix`, simply include the
 `stratum.nixosModules.sdImage` module in the *modules* section of your
@@ -106,6 +114,7 @@ and user configuration:
 ```nix
 {
   inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs";
     stratum.url = "github:koenw/stratum";
   };
 
@@ -160,10 +169,11 @@ To build the SD image for the *pitime* system in the above `flake.nix`, run
 `nix build '.#nixosConfigurations.pitime.config.system.build.sdImage'`.
 
 
-### Using Nix Flakes
+### Configuration Using Nix Flakes
 
 After bootstrapping your Raspberry Pi using the initial SD image you can make
-further changes by simply deploying from the same `flake.nix`:
+further changes by simply deploying from the same `flake.nix` you build the SD
+image with:
 
 `nixos-rebuild switch --target-host 2001:db8:babe:babe::1234 --use-remote-sudo --flake '.#pitime'`
 
@@ -178,26 +188,44 @@ options.
 #### Example `flake.nix`
 
 ```nix
-(...)
-    nixosConfigurations."pitime" = nixpkgs.lib.nixosSystem {
+{
+  description = "Example Raspberry Pi GNSS/GPS time server using stratum";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs";
+    stratum.url = "github:koenw/stratum";
+  };
+
+  outputs = { self, nixpkgs, stratum }@inputs: {
+    nixosConfigurations."stratum" = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
-        # Uncomment to generate a custom SD image using
-        # `nix build '.#nixosConfigurations.pitime.config.system.build.sdImage'`
+        # Uncomment to be able to build an SD image using
+        # `nix build '.#nixosConfigurations."stratum".config.system.build.sdImage'`
         # stratum.nixosModules.sdImage
         stratum.nixosModules.stratum
         ({config, pkgs, lib, ...}:
         {
+          networking.hostName = "stratum";
+
+          # Don't forget to create a user for yourself before re-configuring,
+          # or you might lock yourself out!
+          # users.groups.stratum = {};
+          # users.users.stratum = {
+          #   isNormalUser = true;
+          #   extraGroups = [ "wheel" ];
+          #   group = "stratum";
+          #   openssh.authorizedKeys.keys = [
+          #     "ssh-ed25519 AAAAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX stratum@purple"
+          #   ];
+          #   initialHashedPassword = "";
+          # };
+
           stratum = {
             enable = true;
             ntp.allowedIPv6Ranges = [
               { address = "fe80::"; prefixLength = 10; }
-              { address = "2001:db8:babe:babe::"; prefixLength = 64; }
-            ];
-            ntp.servers = [
-              "1.pool.ntp.org"
-              "2.pool.ntp.org"
-              "3.pool.ntp.org"
+              { address = "2a02:a469:1070:babe::"; prefixLength = 64; }
             ];
             gps.serial.offset = "0.119";
             i2c-rtc.enable = true;
@@ -205,8 +233,30 @@ options.
         })
       ];
     };
-(...)
+  };
+}
 ```
+
+
+#### Configuring Locally
+
+If you'd rather make configuration changes from the Raspberry Pi itself it's
+also possible to run `nixos-rebuild` locally instead:
+
+1)  Copy the example configuration from */etc/stratum* to a local directory:
+
+    `cp -Lr /etc/stratum ~/stratum && cd ~/stratum`
+
+2)  Make your changes:
+
+    `$EDITOR ./flake.nix`
+
+3)  Make sure you've added a user for yourself, or you'll lock yourself out in
+    the next step
+
+4)  Run `sudo nixos-rebuild rebuild switch --flake '.#stratum'` to activate
+    your new configuration, where *stratum* is the name of the *nixosConfiguration*
+    in `flake.nix`.
 
 
 ## Hardware Overview
@@ -495,7 +545,7 @@ combine this with the timing information from the NMEA sentences we can
 
 ## Further Reading
 
-[GPSD Introduction to Time Service](https://gpsd.io/time-service-intro.html)
-[GPSD Time Service HOWTO](https://gpsd.io/gpsd-time-service-howto.html)
-[Building a Raspberry Pi NTP Server](https://www.satsignal.eu/ntp/Raspberry-Pi-NTP.html)
-[domschl/RaspberryNtpServer](https://github.com/domschl/RaspberryNtpServer)
+* [GPSD Introduction to Time Service](https://gpsd.io/time-service-intro.html)
+* [GPSD Time Service HOWTO](https://gpsd.io/gpsd-time-service-howto.html)
+* [Building a Raspberry Pi NTP Server](https://www.satsignal.eu/ntp/Raspberry-Pi-NTP.html)
+* [domschl/RaspberryNtpServer](https://github.com/domschl/RaspberryNtpServer)

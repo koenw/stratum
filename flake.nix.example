@@ -1,0 +1,47 @@
+{
+  description = "Example Raspberry Pi GNSS/GPS time server using stratum";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs";
+    stratum.url = "github:koenw/stratum";
+  };
+
+  outputs = { self, nixpkgs, stratum }@inputs: {
+    nixosConfigurations."stratum" = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        # Uncomment to be able to build an SD image using
+        # `nix build '.#nixosConfigurations."stratum".config.system.build.sdImage'`
+        # stratum.nixosModules.sdImage
+        stratum.nixosModules.stratum
+        ({config, pkgs, lib, ...}:
+        {
+          networking.hostName = "stratum";
+
+          # Don't forget to create a user for yourself before re-configuring,
+          # or you might lock yourself out!
+          # users.groups.stratum = {};
+          # users.users.stratum = {
+          #   isNormalUser = true;
+          #   extraGroups = [ "wheel" ];
+          #   group = "stratum";
+          #   openssh.authorizedKeys.keys = [
+          #     "ssh-ed25519 AAAAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX stratum@purple"
+          #   ];
+          #   initialHashedPassword = "";
+          # };
+
+          stratum = {
+            enable = true;
+            ntp.allowedIPv6Ranges = [
+              { address = "fe80::"; prefixLength = 10; }
+              { address = "2a02:a469:1070:babe::"; prefixLength = 64; }
+            ];
+            gps.serial.offset = "0.119";
+            i2c-rtc.enable = true;
+          };
+        })
+      ];
+    };
+  };
+}

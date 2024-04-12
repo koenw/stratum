@@ -40,9 +40,11 @@ with lib;
         * Build a new custom image ('immutable infrastructure')
 
         * Locally edit a `flake.nix`:
-          1) `cd /etc/nixos`
+          1) Create a directory to work from:
+            `cp -rL /etc/stratum ~/stratum && cd ~/stratum`
           2) `$EDITOR flake.nix`
-          3) `nixos-rebuild switch --flake '.#stratum'`
+          3) Read the instructions in the file, or you'll lock yourself out
+          4) `nixos-rebuild switch --flake '.#stratum'`
 
         * Remotely edit a `flake.nix`:
           1) `curl -O https://raw.githubusercontent.com/koenw/stratum/master/flake.nix.example`
@@ -56,8 +58,8 @@ with lib;
         curl https://github.com/<username>.keys >> ~/.ssh/authorized_keys
         chmod 600 ~/.ssh/authorized_keys
 
-      See README.md at https://github/koenw/stratum and the NixOS documentation
-      for more details.
+      See the README.md at /etc/stratum or https://github/koenw/stratum and the
+      NixOS documentation for more details.
 
       My ip addresses are:
       $(${pkgs.iproute2}/bin/ip a sh dev end0 |${pkgs.gawk}/bin/awk '/^\s+inet[6 ]/ {print $2}')
