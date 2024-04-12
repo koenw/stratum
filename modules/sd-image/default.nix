@@ -35,15 +35,26 @@ with lib;
       The "stratum" account has an empty password. Use `sudo` to become
       root.
 
+      To make changes to the system configuration you can either:
+
+        * Build a new custom image ('immutable infrastructure')
+
+        * Locally edit a `flake.nix`:
+          1) `cd /etc/nixos`
+          2) `$EDITOR flake.nix`
+          3) `nixos-rebuild switch --flake '.#stratum'`
+
+        * Remotely edit a `flake.nix`:
+          1) `curl -O https://raw.githubusercontent.com/koenw/stratum/master/flake.nix.example`
+          2) `mv flake.nix.example flake.nix`
+          3) `$EDITOR flake.nix`
+          4) `nixos-rebuild switch --flake '.#stratum' --target-host stratum.example.com --use-remote-sudo`
+
       To login over ssh add your public key to /home/stratum/.ssh/authorized_keys, e.g.:
 
         mkdir -m 700 ~/.ssh
         curl https://github.com/<username>.keys >> ~/.ssh/authorized_keys
         chmod 600 ~/.ssh/authorized_keys
-
-      To make changes to the system configuration either
-        1) Build a new custom image
-        2) Manage the system using Nix flakes
 
       See README.md at https://github/koenw/stratum and the NixOS documentation
       for more details.

@@ -20,7 +20,7 @@ syncing time using [NTP](ntp),
 which might achieve about ±1mSec deviation on a LAN and perhaps ±10mSec on less
 predictable connections (like most WANs).
 
-Serving this time locally over [NTP][ntp] allows you to keep very accurate time on
+Serving this time locally over NTP allows you to keep very accurate time on
 your network, even independent of the internet.
 
 Manage your *Raspberry Pi Time Servers* by [building custom images](#building-a-custom-image) or
@@ -31,9 +31,9 @@ from a local [Nix flake](#using-nix-flakes).
 
 * [Features](#features)
 * [Getting Started](#getting-started)
-* [How GNSS/GPS Communicates Time](#how-gnssgps-communicates-time)
-    * [How GNSS Receivers Communicate Time](#how-gnss-receivers-communicate-time)
-    * [PPS](#pps)
+* [Customization & Management](#customization--management)
+    * [Building a Custom Image](#building-a-custom-image)
+    * [Using Nix Flakes](#using-nix-flakes)
 * [Hardware Overview](#hardware-overview)
     * [Raspberry Pi Models](#raspberry-pi-models)
     * [GNSS (GPS) Receivers](#gnss-gps-receivers)
@@ -42,9 +42,9 @@ from a local [Nix flake](#using-nix-flakes).
         * [Connecting the GNSS Receiver to the Raspberry Pi](#connecting-the-gnss-receiver-to-the-raspberry-pi)
     * [Real Time Clock](#real-time-clock)
         * [Connecting the RTC to the Raspberry Pi](#connecting-the-rtc-to-the-raspberry-pi)
-* [Customization & Management](#customization--management)
-    * [Building a Custom Image](#building-a-custom-image)
-    * [Using Nix Flakes](#using-nix-flakes)
+* [How GNSS/GPS Communicates Time](#how-gnssgps-communicates-time)
+    * [How GNSS Receivers Communicate Time](#how-gnss-receivers-communicate-time)
+    * [PPS](#pps)
 * [Known Limitations / Gotcha's](#known-limitations--gotchas)
 
 ## Features
@@ -75,91 +75,138 @@ from a local [Nix flake](#using-nix-flakes).
 * Continue your journey by [building pre-configured images](#building-a-custom-image), [Managing your system using Nix Flakes](#using-nix-flakes) or perusing the [options reference](./docs/options.md)
 
 
-## How GNSS/GPS Communicates Time
+## Customization & Management
 
-At the core of GNSS/GPS is time keeping. The GNSS satellites contain highly
-accurate atomic clocks that are kept in sync with each other.
+Configuration of the system and the SD image is done using [Nix
+flakes](https://nixos.wiki/wiki/Flakes).
 
-These clocks are directly connected to a transmitting radio, which the
-satellites use to regularly broadcast the precise time according to their clock
-to earth.
-
-By listening to these signals we can now know the approximate time, but because
-we don't know precisely how long it took for the radio signal to get to us, we
-can't know it very precisely (yet).
-
-Together with the clock signal each satellite periodically broadcasts its
-[*ephemeris*](https://en.wikipedia.org/wiki/Ephemeris) data (a bit like a bus
-schedule for satellites), which we can use to calculate the precise location of
-the satellite at any given point in time. This means we now know where exactly
-the satellite was when it send the time signal.
-
-By comparing the timing signals we receive from multiple satellites and taking
-into account their locations relative to each other (and the speed of light),
-we can now infer how long it took for the signals to reach us and consequently
-our precise time & location.
-
-In addition to the basic algorithm described above, most GNSS receivers use
-more sources of information, such as the perceived shift in frequency in a
-satellite signal ([Dopller
-shift](https://www.e-education.psu.edu/geog862/node/1786)) and what satellites
-share about how they perceive other satellites.
+The idea is to include `stratum.nixosModules.stratum` module which gives you
+access to all the magic. See the [options reference](./docs/options.md) for a
+detailed overview of the (stratum specific) configuration options.
 
 
-### How GNSS Receivers Communicate Time
+### Building a Custom Image
 
-Most GNSS receivers use a variant of the
-[NMEA](https://en.wikipedia.org/wiki/NMEA_0183) protocol to communicate over
-UART (serial). These protocols define a set of
-[sentences](https://www.rfwireless-world.com/Terminology/GPS-sentences-or-NMEA-sentences.html)
-a *talker* (the GNSS receiver) can speak to *listeners* (the Raspberry Pi).
+The recommended way to install a new *Raspberry Pi Time Server* is to bootstrap
+the system by building a custom image that will have your network and users
+pre-configured. After the initial boot you'll able to manage your system from a
+`flake.nix` as usual.
 
-This means that if all is well, you should be able to follow these messages
-arriving at our UART/serial RX port by reading from the serial device (if no
-other program like [`gpsd`](https://gpsd.io/) is already consuming them):
+See the [options reference](./docs/options.md) for an overview of available
+options.
 
-```sh
-root@pitime:~/ > tail /dev/ttyS1 -f
-$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76
-$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A
-$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70
-$GPGSV,3,2,11,02,39,223,19,13,28,070,17,26,23,252,,04,14,186,14*79
-$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76
-$GPRMC,092750.000,A,5321.6802,N,00630.3372,W,0.02,31.66,280511,,,A*43
-$GPGGA,092751.000,5321.6802,N,00630.3371,W,1,8,1.03,61.7,M,55.3,M,,*75
-$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A
-$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70
-$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77
-$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76
-$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45
+
+#### Example `flake.nix`
+
+The build a custom image from a `flake.nix`, simply include the
+`stratum.nixosModules.sdImage` module in the *modules* section of your
+*nixosSystem*. Here is an example of a `flake.nix` that includes some network
+and user configuration:
+
+```nix
+{
+  inputs = {
+    stratum.url = "github:koenw/stratum";
+  };
+
+  outputs = { self, nixpkgs, stratum }@inputs: {
+    nixosConfigurations."pitime" = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        stratum.nixosModules.sdImage
+        stratum.nixosModules.stratum
+        ({config, pkgs, lib, ...}:
+        {
+          networking = {
+            hostName = "pitime";
+            useDHCP = true;
+            interfaces.end0 = {
+              ipv6.addresses = [
+                { address = "2001:db8:babe:babe::1234";
+                  prefixLength = 64; }
+              ];
+            };
+            defaultGateway6 = {
+              address = "fe80::1";
+              interface = "end0";
+            };
+          };
+
+          users.groups.koen = {};
+          users.users.koen = {
+            isNormalUser = true;
+            extraGroups = [ "wheel" ];
+            group = "koen";
+            openssh.authorizedKeys.keys = [
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINU8vca1Gh7qq2CC3jXQK/Thqci7hpiMGycDeEkDRvOY koen@purple"
+            ];
+          };
+
+          stratum = {
+            enable = true;
+            ntp.allowedIPv6Ranges = [
+              { address = "fe80::"; prefixLength = 10; }
+              { address = "2001:db8:babe:babe::"; prefixLength = 64; }
+            ];
+          };
+        })
+      ];
+    };
+  };
+}
 ```
 
-The NMEA sentences consists of comma-separated fields, the first of which
-denotes the sentence type (e.g. `$GPGGA` or `$GPRMC`) and dictates how the
-other fields should be interpreted.  Some of these sentences, like the final
-`$GPRMC` sentence in the above output, communicate the time.  Here the second
-field, `092751.000`, indicates this message was send at 09 hours, 27 minutes
-and 51.000 seconds UTC.
-
-However because it once again takes time to send/receive the clock message
-we're again limited in the precision with which we can know the time. For
-example, if our GNSS receiver and Raspberry Pi would communicate using a 9600
-baud-rate, receiving the first 16 bytes of the `$GPRMC` sentence alone will
-take $16 / 9600 = 0.001666$ seconds or 1.7 ms.
-
-For this reason, some GNSS receivers offer an additional output useful for
-those interested in keeping accurate time: The *PPS* or *Pulse Per Second*
-output.
+To build the SD image for the *pitime* system in the above `flake.nix`, run
+`nix build '.#nixosConfigurations.pitime.config.system.build.sdImage'`.
 
 
-#### PPS
+### Using Nix Flakes
 
-The [PPS](https://en.wikipedia.org/wiki/Pulse-per-second_signal) or *Pulse Per
-Second* is a separate output signal on a dedicated pin characterized by a very
-abrupt rising or falling edge that repeats once per second. This is used by the
-GNSS receiver to accurately communicate the edge of each second and if we
-combine this with the timing information from the NMEA sentences we can
-(almost<sup>[1](#known-limitations--gotchas)</sup>) rely on GNSS alone to bootstrap our sense-of-time.
+After bootstrapping your Raspberry Pi using the initial SD image you can make
+further changes by simply deploying from the same `flake.nix`:
+
+`nixos-rebuild switch --target-host 2001:db8:babe:babe::1234 --use-remote-sudo --flake '.#pitime'`
+
+Now that you have a running system the `stratum.nixosModules.sdImage` module is
+no longer needed and can be removed from your configuration, e.g. to get rid of
+the initial *stratum* local user.
+
+See the [options reference](./docs/options.md) for an overview of available
+options.
+
+
+#### Example `flake.nix`
+
+```nix
+(...)
+    nixosConfigurations."pitime" = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        # Uncomment to generate a custom SD image using
+        # `nix build '.#nixosConfigurations.pitime.config.system.build.sdImage'`
+        # stratum.nixosModules.sdImage
+        stratum.nixosModules.stratum
+        ({config, pkgs, lib, ...}:
+        {
+          stratum = {
+            enable = true;
+            ntp.allowedIPv6Ranges = [
+              { address = "fe80::"; prefixLength = 10; }
+              { address = "2001:db8:babe:babe::"; prefixLength = 64; }
+            ];
+            ntp.servers = [
+              "1.pool.ntp.org"
+              "2.pool.ntp.org"
+              "3.pool.ntp.org"
+            ];
+            gps.serial.offset = "0.119";
+            i2c-rtc.enable = true;
+          };
+        })
+      ];
+    };
+(...)
+```
 
 
 ## Hardware Overview
@@ -206,7 +253,7 @@ unless you happen to find some weird outlier, things should "just work".
 | Name            |€€€| Interfaces | PPS Pin | Channels | Frequencies | Reported accuracy |
 |---              |:---:|:---             |:---:|:---:|:---:     |:---:|
 | GT-U7           | € | UART, SPI, USB  | Y | 50 | L1 C/A   |N/A|
-| Waveshare L67K  | € | UART            | Y | 47 | L1       | 30ns |
+| Waveshare L76K  | € | UART            | Y | 47 | L1       | 30ns |
 | ATGM336H        | € | UART, SPI, I²C  | Y | 32 | L1       | 30ns |
 
 
@@ -309,131 +356,91 @@ one](https://www.seeedstudio.com/Pi-RTC-DS1307.html)) are designed to plug right
 into the Raspberry Pi without needing any wires.
 
 
-## Customization & Management
+## How GNSS/GPS Communicates Time
 
-### Building a Custom Image
+At the core of GNSS/GPS is time keeping. The GNSS satellites contain highly
+accurate atomic clocks that are kept in sync with each other.
 
-The recommended way to install a new *Raspberry Pi Time Server* is to bootstrap
-the system by building a custom image that will have your network and users
-pre-configured. After the initial boot you'll able to manage your system from a
-`flake.nix` as usual.
+These clocks are directly connected to a transmitting radio, which the
+satellites use to regularly broadcast the precise time according to their clock
+to earth.
 
-See the [options reference](./docs/options.md) for an overview of available
-options.
+By listening to these signals we can now know the approximate time, but because
+we don't know precisely how long it took for the radio signal to get to us, we
+can't know it very precisely (yet).
+
+Together with the clock signal each satellite periodically broadcasts its
+[*ephemeris*](https://en.wikipedia.org/wiki/Ephemeris) data (a bit like a bus
+schedule for satellites), which we can use to calculate the precise location of
+the satellite at any given point in time. This means we now know where exactly
+the satellite was when it send the time signal.
+
+By comparing the timing signals we receive from multiple satellites and taking
+into account their locations relative to each other (and the speed of light),
+we can now infer how long it took for the signals to reach us and consequently
+our precise time & location.
+
+In addition to the basic algorithm described above, most GNSS receivers use
+more sources of information, such as the perceived shift in frequency in a
+satellite signal ([Dopller
+shift](https://www.e-education.psu.edu/geog862/node/1786)) and what satellites
+share about how they perceive other satellites.
 
 
-#### Example `flake.nix`
+### How GNSS Receivers Communicate Time
 
-The build a custom image from a `flake.nix`, simply include the
-`stratum.nixosModules.sdImage` module in the *modules* section of your
-*nixosSystem*. Here is an example of a `flake.nix` that includes some network
-and user configuration:
+Most GNSS receivers use a variant of the
+[NMEA](https://en.wikipedia.org/wiki/NMEA_0183) protocol to communicate over
+UART (serial). These protocols define a set of
+[sentences](https://www.rfwireless-world.com/Terminology/GPS-sentences-or-NMEA-sentences.html)
+a *talker* (the GNSS receiver) can speak to *listeners* (the Raspberry Pi).
 
-```nix
-{
-  inputs = {
-    stratum.url = "github:koenw/stratum";
-  };
+This means that if all is well, you should be able to follow these messages
+arriving at our UART/serial RX port by reading from the serial device (if no
+other program like [`gpsd`](https://gpsd.io/) is already consuming them):
 
-  outputs = { self, nixpkgs, stratum }@inputs: {
-    nixosConfigurations."pitime" = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
-      modules = [
-        stratum.nixosModules.sdImage
-        stratum.nixosModules.stratum
-        ({config, pkgs, lib, ...}:
-        {
-          time.timeZone = "Europe/Amsterdam";
-
-          networking = {
-            hostName = "pitime";
-            useDHCP = true;
-            interfaces.end0 = {
-              ipv6.addresses = [
-                { address = "2001:db8:babe:babe::1234";
-                  prefixLength = 64; }
-              ];
-            };
-            defaultGateway6 = {
-              address = "fe80::1";
-              interface = "end0";
-            };
-          };
-
-          users.groups.koen = {};
-          users.users.koen = {
-            isNormalUser = true;
-            extraGroups = [ "wheel" ];
-            group = "koen";
-            openssh.authorizedKeys.keys = [
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINU8vca1Gh7qq2CC3jXQK/Thqci7hpiMGycDeEkDRvOY koen@purple"
-            ];
-          };
-
-          stratum = {
-            enable = true;
-            ntp.allowedIPv6Ranges = [
-              { address = "fe80::"; prefixLength = 10; }
-              { address = "2001:db8:babe:babe::"; prefixLength = 64; }
-            ];
-          };
-        })
-      ];
-    };
-  };
-}
+```sh
+root@pitime:~/ > tail /dev/ttyS1 -f
+$GPGGA,092750.000,5321.6802,N,00630.3372,W,1,8,1.03,61.7,M,55.2,M,,*76
+$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A
+$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70
+$GPGSV,3,2,11,02,39,223,19,13,28,070,17,26,23,252,,04,14,186,14*79
+$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76
+$GPRMC,092750.000,A,5321.6802,N,00630.3372,W,0.02,31.66,280511,,,A*43
+$GPGGA,092751.000,5321.6802,N,00630.3371,W,1,8,1.03,61.7,M,55.3,M,,*75
+$GPGSA,A,3,10,07,05,02,29,04,08,13,,,,,1.72,1.03,1.38*0A
+$GPGSV,3,1,11,10,63,137,17,07,61,098,15,05,59,290,20,08,54,157,30*70
+$GPGSV,3,2,11,02,39,223,16,13,28,070,17,26,23,252,,04,14,186,15*77
+$GPGSV,3,3,11,29,09,301,24,16,09,020,,36,,,*76
+$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45
 ```
 
-To build the SD image for the *pitime* system in the above `flake.nix`, run
-`nix build '.#nixosConfigurations.pitime.config.system.build.sdImage'`.
+The NMEA sentences consists of comma-separated fields, the first of which
+denotes the sentence type (e.g. `$GPGGA` or `$GPRMC`) and dictates how the
+other fields should be interpreted.  Some of these sentences, like the final
+`$GPRMC` sentence in the above output, communicate the time.  Here the second
+field, `092751.000`, indicates this message was send at 09 hours, 27 minutes
+and 51.000 seconds UTC.
+
+However because it once again takes time to send/receive the clock message
+we're again limited in the precision with which we can know the time. For
+example, if our GNSS receiver and Raspberry Pi would communicate using a 9600
+baud-rate, receiving the first 16 bytes of the `$GPRMC` sentence alone will
+take $16 / 9600 = 0.001666$ seconds or 1.7 ms.
+
+For this reason, some GNSS receivers offer an additional output useful for
+those interested in keeping accurate time: The *PPS* or *Pulse Per Second*
+output.
 
 
-### Using Nix Flakes
+#### PPS
 
-After bootstrapping your Raspberry Pi using the initial SD image you can make
-further changes by simply deploying from the same `flake.nix`:
-
-`nixos-rebuild switch --target-host 2001:db8:babe:babe::1234 --use-remote-sudo --flake '.#pitime'`
-
-Now that you have a running system the `stratum.nixosModules.sdImage` module is
-no longer needed and can be removed from your configuration, e.g. to get rid of
-the initial *stratum* local user.
-
-See the [options reference](./docs/options.md) for an overview of available
-options.
-
-
-#### Example `flake.nix`
-
-```nix
-(...)
-    nixosConfigurations."pitime" = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
-      modules = [
-        # Uncomment to generate custom SD image
-        # stratum.nixosModules.sdImage
-        stratum.nixosModules.stratum
-        ({config, pkgs, lib, ...}:
-        {
-          stratum = {
-            enable = true;
-            ntp.allowedIPv6Ranges = [
-              { address = "fe80::"; prefixLength = 10; }
-              { address = "2001:db8:babe:babe::"; prefixLength = 64; }
-            ];
-            ntp.servers = [
-              "1.pool.ntp.org"
-              "2.pool.ntp.org"
-              "3.pool.ntp.org"
-            ];
-            gps.serial.offset = "0.119";
-            i2c-rtc.enable = true;
-          };
-        })
-      ];
-    };
-(...)
-```
+The [PPS](https://en.wikipedia.org/wiki/Pulse-per-second_signal) or *Pulse Per
+Second* is a separate output signal on a dedicated pin characterized by a very
+abrupt rising or falling edge that repeats once per second. This is used by the
+GNSS receiver to accurately communicate the edge of each second and if we
+combine this with the timing information from the NMEA sentences we can
+(almost<sup>[1](#known-limitations--gotchas)</sup>) rely on GNSS alone to bootstrap our sense-of-time.
 
 
 ## Known Limitations / Gotcha's
@@ -488,4 +495,7 @@ options.
 
 ## Further Reading
 
+[GPSD Introduction to Time Service](https://gpsd.io/time-service-intro.html)
 [GPSD Time Service HOWTO](https://gpsd.io/gpsd-time-service-howto.html)
+[Building a Raspberry Pi NTP Server](https://www.satsignal.eu/ntp/Raspberry-Pi-NTP.html)
+[domschl/RaspberryNtpServer](https://github.com/domschl/RaspberryNtpServer)
