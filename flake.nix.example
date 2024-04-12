@@ -31,12 +31,23 @@
           #   initialHashedPassword = "";
           # };
 
+          # Set if you want to use ACME/Let's Encrypt for NTS certificates
+          # security.acme.acceptTerms = true;
+          # security.acme.defaults.email = "hello@example.com";
+
           stratum = {
             enable = true;
             ntp.allowedIPv6Ranges = [
               { address = "fe80::"; prefixLength = 10; }
               { address = "2a02:a469:1070:babe::"; prefixLength = 64; }
             ];
+
+            # Using ACME by default, see above to accept terms and set your email
+            # ntp.nts.enable = true;
+            # or bring your own certificates
+            # ntp.nts.certificate = "/etc/bladiebla";
+            # ntp.nts.key = "/etc/bladiebla";
+
             gps.serial.offset = "0.119";
             i2c-rtc.enable = true;
           };

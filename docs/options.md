@@ -16,7 +16,7 @@ boolean
 ` true `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -52,7 +52,7 @@ boolean
 ` true `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -83,7 +83,7 @@ boolean
 ` true `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -113,7 +113,7 @@ string
 ` "NMEA" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -137,7 +137,7 @@ string
 ` "/dev/pps0" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -170,7 +170,7 @@ unspecified value
 ` "PPS" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -200,7 +200,7 @@ null or string
 ` "0.120" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -221,7 +221,7 @@ string
 ` "/dev/ttyS1" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -258,7 +258,7 @@ string
 ` "NMEA" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -284,7 +284,7 @@ boolean
 ` true `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -307,7 +307,7 @@ string
 ` "0x68" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -328,7 +328,7 @@ positive integer, meaning >0
 ` 3 `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -358,7 +358,7 @@ string
 ` "ds1307" `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -379,7 +379,7 @@ boolean
 ` true `
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -427,7 +427,195 @@ unspecified value
 ```
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
+
+
+
+## stratum\.ntp\.ntppool\.redirects\.enable
+
+
+
+Enable redirects for web requests to \*\.ntppool\.org to www\.nttppool\.org
+
+This is requested on https://www\.ntppool\.org/en/join\.html because
+people sometimes don’t type the ‘www\.’, causing them to end up  on some
+ntp servers like, perhaps, yours\. This will help them be where they
+want to be :)
+
+This is enabled by default when ACME is enabled because that means
+we’ll have a public webserver anyway (to solve the ACME challenge);
+might as well be the best NTP-guardian we can be and redirect these
+requests as requested\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` true `
+
+*Declared by:*
+ - [modules/options\.nix](../modules/options\.nix)
+
+
+
+## stratum\.ntp\.nts\.enable
+
+
+
+Whether to enable NTS (authenticated NTP) support\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/options\.nix](../modules/options\.nix)
+
+
+
+## stratum\.ntp\.nts\.acme\.enable
+
+
+
+Enable ACME integration
+
+This will enable a nginx server on port 80 to solve the ACME
+challenges and sync the key \& certificate with chrony\.
+
+This requires your fqdn to be resolvable by the ACME servers and if
+you’re behind a NAT perhaps additionally port-forwarding\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` true `
+
+*Declared by:*
+ - [modules/options\.nix](../modules/options\.nix)
+
+
+
+## stratum\.ntp\.nts\.acme\.email
+
+
+
+E-mail to use for the NTS ACME certificates
+
+
+
+*Type:*
+unspecified value
+
+
+
+*Default:*
+` "hoi@example.com" `
+
+
+
+*Example:*
+` "hello@example.com" `
+
+*Declared by:*
+ - [modules/options\.nix](../modules/options\.nix)
+
+
+
+## stratum\.ntp\.nts\.acme\.fqdn
+
+
+
+The FQDN that will be used for the NTS certificates
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "strings.concatStrings [ config.networking.hostName \".\" config.networking.domain ]" `
+
+
+
+*Example:*
+` "time.example.com" `
+
+*Declared by:*
+ - [modules/options\.nix](../modules/options\.nix)
+
+
+
+## stratum\.ntp\.nts\.certificate
+
+
+
+Certificate to use for the NTS KE
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "config.services.chrony.directory + \"/fullchain.pem\"" `
+
+
+
+*Example:*
+` "/var/lib/chrony/fullchain.pem" `
+
+*Declared by:*
+ - [modules/options\.nix](../modules/options\.nix)
+
+
+
+## stratum\.ntp\.nts\.key
+
+
+
+Key to use for the NTS KE
+
+
+
+*Type:*
+unspecified value
+
+
+
+*Default:*
+` "config.services.chrony.directory + \"/key.pem\"" `
+
+
+
+*Example:*
+` "/var/lib/chrony/key.pem" `
+
+*Declared by:*
+ - [modules/options\.nix](../modules/options\.nix)
 
 
 
@@ -461,6 +649,6 @@ unspecified value
 ```
 
 *Declared by:*
- - [/nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options\.nix](file:///nix/store/xsgfkwpgai1yx1r23mwpi4dpyxbz1y8g-source/modules/options.nix)
+ - [modules/options\.nix](../modules/options\.nix)
 
 

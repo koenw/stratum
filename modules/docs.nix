@@ -11,7 +11,8 @@ let
   };
 in
   runCommand "options-doc.md" {} ''
-    cat <<EOF - ${optionsDoc.optionsCommonMark} > $out
+    # The sed rewrites the 'Declared by' links to relative links
+    cat <<EOF - ${optionsDoc.optionsCommonMark} | sed 's!\[/nix/store/[^/]\+/\([^]]\+\)](\([^)]\+\)![\1](../\1)!' > $out
     # Stratum options
 
 

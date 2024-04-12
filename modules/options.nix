@@ -188,6 +188,73 @@ in {
         to get a sense of our time compared to the community.
       '';
     };
+
+    ntppool.redirects = {
+      enable = mkOption {
+        default = cfg.ntp.nts.acme.enable;
+        type = types.bool;
+        description = mdDoc ''
+        Enable redirects for web requests to *.ntppool.org to www.nttppool.org
+
+        This is requested on https://www.ntppool.org/en/join.html because
+        people sometimes don't type the 'www.', causing them to end up  on some
+        ntp servers like, perhaps, yours. This will help them be where they
+        want to be :)
+
+        This is enabled by default when ACME is enabled because that means
+        we'll have a public webserver anyway (to solve the ACME challenge);
+        might as well be the best NTP-guardian we can be and redirect these
+        requests as requested.
+        '';
+      };
+    };
+
+    nts = {
+      enable = mkEnableOption (mdDoc "NTS (authenticated NTP) support");
+
+      certificate = mkOption {
+        type = types.str;
+        default = ''config.services.chrony.directory + "/fullchain.pem"'';
+        example = "/var/lib/chrony/fullchain.pem";
+        description = (mdDoc "Certificate to use for the NTS KE");
+      };
+      key = mkOption {
+        default = ''config.services.chrony.directory + "/key.pem"'';
+        example = "/var/lib/chrony/key.pem";
+        description = (mdDoc "Key to use for the NTS KE");
+      };
+
+      acme = {
+        enable = mkOption {
+          type = types.bool;
+          default = config.security.acme.acceptTerms;
+          description = mdDoc ''
+            Enable ACME integration
+
+            This will enable a nginx server on port 80 to solve the ACME
+            challenges and sync the key & certificate with chrony.
+
+            This requires your fqdn to be resolvable by the ACME servers and if
+            you're behind a NAT perhaps additionally port-forwarding.
+
+            Default: config.security.acme.acceptTerms
+          '';
+        };
+        email = mkOption {
+          default = config.security.acme.defaults.email;
+          example = "hello@example.com";
+          description = (mdDoc ''
+            E-mail to use for the NTS ACME certificates
+          '');
+        };
+        fqdn = mkOption {
+          type = types.str;
+          default = ''strings.concatStrings [ config.networking.hostName "." config.networking.domain ]'';
+          example = "time.example.com";
+          description = (mdDoc "The FQDN that will be used for the NTS certificates");
+        };
+      };
+    };
   };
 
   options.stratum.i2c-rtc = {

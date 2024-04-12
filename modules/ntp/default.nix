@@ -27,6 +27,11 @@ in {
             "${addr.address}/${toString addr.prefixLength}"
           ) cfg.allowedIPv6Ranges)
         }
+
+        ${if cfg.nts.enable then ''
+        ntsservercert ${cfg.nts.certificate}
+        ntsserverkey ${cfg.nts.key}
+        '' else ""}
       '';
     };
 
@@ -37,5 +42,11 @@ in {
     systemd.services.chronyd = {
       after = [ "gpsd.service" ];
     };
+
   };
+
+  imports = [
+    ./nts.nix
+    ./ntppool_redirects.nix
+  ];
 }

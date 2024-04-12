@@ -33,7 +33,7 @@ from a local [Nix flake](#using-nix-flakes).
 * [Getting Started](#getting-started)
 * [Installation & Configuration](#installation--configuration)
     * [Installation](#installation)
-        * [Example `flake.nix` for a Custom Image](#example-flakenix-for-a-custom-image)
+        * [Building a Custom Image](#building-a-custom-image)
     * [Configuration Using Nix Flakes](#configuration-using-nix-flakes)
         * [Example `flake.nix`](#example-flakenix)
         * [Configuring Locally](#configuring-locally)
@@ -61,12 +61,13 @@ from a local [Nix flake](#using-nix-flakes).
     * Easy to manage & customize
     * No manual steps to "glue" things together
 * [x] IPv6 Support
+* [x] [NTS](https://blog.meinbergglobal.com/2021/07/14/network-time-security-nts-updated-security-for-ntp/) & [ACME](https://en.wikipedia.org/wiki/Let%27s_Encrypt#ACME_protocol)/*Let's Encrypt* Support
 * [x] Nix Flake support
 
 
 ## Getting Started
 
-* Attach a GNSS module like the GT-U7, Waveshare L67K or ATGM336H to your Raspberry Pi. See [GNSS Receivers](#gnssgpsreceivers) for more details.
+* Attach a GNSS module like the GT-U7, Waveshare L67K or ATGM336H to your Raspberry Pi. See [GNSS Receivers](#gnss-gps-receivers) for more details.
 * (Optional) Additionally attach a RTC. See [Real Time Clocks](#real-time-clock) for more details.
 * Run `nix build github:koenw/stratum`
   to build the SD image or [build your own custom image](#building-a-custom-image)
@@ -75,7 +76,7 @@ from a local [Nix flake](#using-nix-flakes).
 * Permit some time for the receiver to get a fix
 * Congratulations! Circumstances permitting, you now have a stratum 1 time server :)
 * (When using the pre-build image) login on the console using the *stratum* username
-* Continue your journey by [building pre-configured images](#building-a-custom-image), [Managing your system using Nix Flakes](#using-nix-flakes) or perusing the [options reference](./docs/options.md)
+* Continue your journey by [building pre-configured images](#building-a-custom-image), [Managing your system using Nix Flakes](#configuration-using-nix-flakes) or perusing the [options reference](./docs/options.md)
 
 
 ## Installation & Configuration
@@ -104,7 +105,7 @@ github:koenw/stratum`, but you'll have to login using the console instead of
 ssh (The user *stratum* has an empty password).
 
 
-#### Example `flake.nix` for a Custom Image
+#### Building a Custom Image
 
 The build a custom image from a `flake.nix`, simply include the
 `stratum.nixosModules.sdImage` module in the *modules* section of your
@@ -141,15 +142,22 @@ and user configuration:
             };
           };
 
-          users.groups.koen = {};
-          users.users.koen = {
-            isNormalUser = true;
-            extraGroups = [ "wheel" ];
-            group = "koen";
-            openssh.authorizedKeys.keys = [
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINU8vca1Gh7qq2CC3jXQK/Thqci7hpiMGycDeEkDRvOY koen@purple"
-            ];
-          };
+          # Don't forget to create a user for yourself before re-configuring,
+          # or you might lock yourself out!
+          # users.groups.stratum = {};
+          # users.users.stratum = {
+          #   isNormalUser = true;
+          #   extraGroups = [ "wheel" ];
+          #   group = "stratum";
+          #   openssh.authorizedKeys.keys = [
+          #     "ssh-ed25519 AAAAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX stratum@purple"
+          #   ];
+          #   initialHashedPassword = "";
+          # };
+
+          # Set if you want to use ACME/Let's Encrypt for NTS certificates
+          # security.acme.acceptTerms = true;
+          # security.acme.defaults.email = "hello@example.com";
 
           stratum = {
             enable = true;
@@ -157,6 +165,11 @@ and user configuration:
               { address = "fe80::"; prefixLength = 10; }
               { address = "2001:db8:babe:babe::"; prefixLength = 64; }
             ];
+            # Using ACME by default, see above to accept ToS & set email
+            # ntp.nts.enable = true;
+            # or bring your own certificates
+            # ntp.nts.certificate = "/etc/bladiebla";
+            # ntp.nts.key = "/etc/bladiebla";
           };
         })
       ];
@@ -221,13 +234,28 @@ options.
           #   initialHashedPassword = "";
           # };
 
+
+
+          # security.acme.acceptTerms = true;
+          # security.acme.defaults.email = "hello@example.com";
+
           stratum = {
             enable = true;
+
+            # These ranges will be allowed through the firewall and configured
+            # in chrony's ACLs
             ntp.allowedIPv6Ranges = [
               { address = "fe80::"; prefixLength = 10; }
               { address = "2a02:a469:1070:babe::"; prefixLength = 64; }
             ];
+
+            # Enable NTS with ACME (if `acme.acceptTerms` and
+            # `acme.defaults.email` are set)
+            ntp.nts.enable = true;
+
+            # Configure a known offset of (about) 120ms for our serial clock
             gps.serial.offset = "0.119";
+
             i2c-rtc.enable = true;
           };
         })
