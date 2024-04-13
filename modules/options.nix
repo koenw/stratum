@@ -214,12 +214,12 @@ in {
 
       certificate = mkOption {
         type = types.str;
-        default = ''config.services.chrony.directory + "/fullchain.pem"'';
+        default = config.services.chrony.directory + "/fullchain.pem";
         example = "/var/lib/chrony/fullchain.pem";
         description = (mdDoc "Certificate to use for the NTS KE");
       };
       key = mkOption {
-        default = ''config.services.chrony.directory + "/key.pem"'';
+        default = config.services.chrony.directory + "/key.pem";
         example = "/var/lib/chrony/key.pem";
         description = (mdDoc "Key to use for the NTS KE");
       };
@@ -249,7 +249,7 @@ in {
         };
         fqdn = mkOption {
           type = types.str;
-          default = ''strings.concatStrings [ config.networking.hostName "." config.networking.domain ]'';
+          default = strings.concatStrings [ config.networking.hostName "." config.networking.domain ];
           example = "time.example.com";
           description = (mdDoc "The FQDN that will be used for the NTS certificates");
         };
