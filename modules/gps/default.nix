@@ -3,7 +3,7 @@ with lib;
 let
   cfg = config.stratum.gps;
 in {
-  config = {
+  config = mkIf cfg.enable {
     systemd.services."serial-getty@${baseNameOf cfg.serial.path}".enable = false;
 
     services.gpsd = {

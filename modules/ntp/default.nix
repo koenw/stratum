@@ -2,7 +2,13 @@
 with lib;
 let
   cfg = config.stratum.ntp;
-  super.gps = config.stratum.gps;
+
+  gps = config.stratum.gps;
+
+  gpsRefclockConfig = ''
+    refclock PPS ${gps.pps.path} refid ${gps.pps.refid} trust lock ${gps.pps.lock}
+    refclock SHM 0 refid ${gps.serial.refid} ${if gps.serial.offset != null then "offset ${gps.serial.offset} " else ""}trust noselect
+  '';
 in {
   config = mkIf cfg.enable {
     services.chrony = {
@@ -14,18 +20,18 @@ in {
         "-d"
       ];
       extraConfig = ''
-        refclock PPS ${super.gps.pps.path} refid ${super.gps.pps.refid} trust lock ${super.gps.pps.lock}
-        refclock SHM 0 refid ${super.gps.serial.refid} ${if super.gps.serial.offset != null then "offset ${super.gps.serial.offset} " else ""}trust noselect
+        ${if gps.enable then gpsRefclockConfig else ""}
 
-        ${concatMapStrings (x:
-        "server ${x} iburst noselect\n"
-        ) cfg.servers}
+        ${concatMapStrings
+         (x: "server ${x} iburst ${if gps.enable then "noselect" else ""}\n")
+         cfg.servers}
 
-        ${concatMapStrings (x:
-          "allow ${x}\n")
-          (map (addr:
-            "${addr.address}/${toString addr.prefixLength}"
-          ) cfg.allowedIPv6Ranges)
+        ${concatMapStrings
+          (x: "allow ${x}\n")
+          (map
+            (addr: "${addr.address}/${toString addr.prefixLength}")
+            (cfg.allowedIPv6Ranges ++ cfg.allowedIPv4Ranges)
+          )
         }
 
         ${if cfg.nts.enable then ''
@@ -37,6 +43,7 @@ in {
 
     networking.firewall.extraInputRules = ''
       ip6 saddr { ${concatStringsSep "," (map(x: "${x.address}/${toString x.prefixLength}") cfg.allowedIPv6Ranges)} } udp dport 123 accept
+      ip saddr { ${concatStringsSep "," (map(x: "${x.address}/${toString x.prefixLength}") cfg.allowedIPv4Ranges)} } udp dport 123 accept
     '';
 
     systemd.services.chronyd = {

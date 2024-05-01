@@ -8,11 +8,17 @@ in {
   options.stratum = {
     enable = mkOption {
       type = types.bool;
-      default = true;
+      default = false;
       description = mdDoc "Enable the Stratum (1) GNSS time server.";
     };
 
     gps = {
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = mdDoc "Use a (stratum 0) GPS receiver as refclock";
+      };
+
       serial = {
         path = mkOption {
           default = "/dev/ttyS1";
@@ -122,7 +128,7 @@ in {
       };
 
       gpsd_watchdog.enable = mkOption {
-        default = true;
+        default = cfg.gps.enable;
         type = types.bool;
         description = mdDoc ''
           In some cases a GNSS device can be deactived only to return a few
@@ -167,6 +173,19 @@ in {
       ];
       description = mdDoc ''
         The IPv6 Ranges that will be allowed to query our NTP server.
+
+        This will open the firewall and configure the ACL's in chrony.
+      '';
+    };
+
+    allowedIPv4Ranges = mkOption {
+      default = [ { address = "127.0.0.1"; prefixLength = 8; } ];
+      example = [
+        { address = "127.0.0.1"; prefixLength = 8; }
+        { address = "192.0.2.0"; prefixLength = 24; }
+      ];
+      description = mdDoc ''
+        The IPv4 Ranges that will be allowed to query our NTP server.
 
         This will open the firewall and configure the ACL's in chrony.
       '';
