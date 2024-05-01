@@ -149,7 +149,6 @@ with lib;
         mkdir firmware/overlays
         cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/disable-bt.dtbo firmware/overlays/
         cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/pps-gpio.dtbo firmware/overlays/
-        cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/disable-wifi.dtbo firmware/overlays/
       '';
 
       populateRootCommands = ''
