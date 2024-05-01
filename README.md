@@ -47,7 +47,7 @@ from a local [Nix flake](#using-nix-flakes).
         * [Connecting the RTC to the Raspberry Pi](#connecting-the-rtc-to-the-raspberry-pi)
 * [How GNSS/GPS Communicates Time](#how-gnssgps-communicates-time)
     * [How GNSS Receivers Communicate Time](#how-gnss-receivers-communicate-time)
-    * [PPS](#pps)
+        * [PPS](#pps)
 * [Known Limitations / Gotcha's](#known-limitations--gotchas)
 
 ## Features
@@ -61,7 +61,7 @@ from a local [Nix flake](#using-nix-flakes).
     * Easy to manage & customize
     * No manual steps to "glue" things together
 * [x] IPv6 Support
-* [x] [NTS](https://blog.meinbergglobal.com/2021/07/14/network-time-security-nts-updated-security-for-ntp/) & [ACME](https://en.wikipedia.org/wiki/Let%27s_Encrypt#ACME_protocol)/*Let's Encrypt* Support
+* [x] [NTS](https://blog.meinbergglobal.com/2021/07/14/network-time-security-nts-updated-security-for-ntp/) (authenticated NTP) inc. [ACME](https://en.wikipedia.org/wiki/Let%27s_Encrypt#ACME_protocol) (*Let's Encrypt*) Support
 * [x] Nix Flake support
 
 
@@ -577,3 +577,5 @@ combine this with the timing information from the NMEA sentences we can
 * [GPSD Time Service HOWTO](https://gpsd.io/gpsd-time-service-howto.html)
 * [Building a Raspberry Pi NTP Server](https://www.satsignal.eu/ntp/Raspberry-Pi-NTP.html)
 * [domschl/RaspberryNtpServer](https://github.com/domschl/RaspberryNtpServer)
+* [Secure NTP with NTS](https://fedoramagazine.org/secure-ntp-with-nts/)
+* [Network Time Security](https://www.meinbergglobal.com/english/info/nts-network-time-security.htm)
