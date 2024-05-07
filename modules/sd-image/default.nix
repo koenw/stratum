@@ -22,6 +22,8 @@ with lib;
   config = {
     documentation.enable = mkDefault true;
 
+    config.stratum.hardware.raspberry-pi.enable = true;
+
     users.users.stratum = {
       isNormalUser = true;
       extraGroups = [ "wheel" ];

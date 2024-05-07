@@ -150,6 +150,25 @@ in {
         '';
       };
     };
+
+    hardware = {
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enable hardware management";
+      };
+
+      raspberry-pi.enable = mkOption {
+        type = types.bool;
+        default = true;
+      };
+
+      aarch64.enable = mkOption {
+        type = types.bool;
+        default = cfg.hardware.raspberry-pi.enable;
+      };
+    };
+
   };
 
   # `NixosOptionsDoc` has a bug and includes `_module.args` in the docs it
