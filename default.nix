@@ -25,7 +25,7 @@ in {
     environment.etc."stratum/README.md".source = ./README.md;
     environment.etc."stratum/options.md".source = ./docs/options.md;
 
-    system.stateVersion = "24.05";
+    system.stateVersion = mkDefault "24.05";
   };
 
   imports = [
