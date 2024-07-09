@@ -1,3 +1,4 @@
+{ klokkijker, ... }:
 { config, lib, pkgs, ... }:
 with lib;
 let
@@ -19,6 +20,7 @@ in {
       picocom minicom
       pps-tools
       dtc
+      klokkijker.packages."${pkgs.system}".default
     ];
 
     environment.etc."stratum/flake.nix".source = ./flake.nix.example;
@@ -29,6 +31,7 @@ in {
   };
 
   imports = [
+    ( import ./modules/monitoring.nix { inherit klokkijker; })
     ./modules/options.nix
     ./modules/hardware/raspberry-pi.nix
     ./modules/hardware/i2c-rtc.nix

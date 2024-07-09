@@ -22,7 +22,7 @@ with lib;
   config = {
     documentation.enable = mkDefault true;
 
-    config.stratum.hardware.raspberry-pi.enable = true;
+    stratum.hardware.raspberry-pi.enable = true;
 
     users.users.stratum = {
       isNormalUser = true;
@@ -163,5 +163,7 @@ with lib;
         ${pkgs.gnused}/bin/sed -i 's-^TIMEOUT \([0-9-]\+\)-TIMEOUT \1\nPROMPT 0\n-' ./files/boot/extlinux/extlinux.conf
       '';
     };
+
+    system.stateVersion = "24.05";
   };
 }

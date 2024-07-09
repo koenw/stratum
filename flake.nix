@@ -3,9 +3,10 @@
 
   inputs = {
     nixos.url = "nixpkgs/23.11"; # for live media
+    klokkijker.url = "github:koenw/klokkijker";
   };
 
-  outputs = { self, nixpkgs, nixos }@inputs:
+  outputs = { self, nixpkgs, nixos, klokkijker }@inputs:
   let
     devSystems = [
       "x86_64-linux"
@@ -15,7 +16,9 @@
 
     forAllDevSystems = fn:
       nixpkgs.lib.genAttrs devSystems
-      (system: fn { pkgs = import nixpkgs { inherit system; }; });
+      (system: fn {
+        pkgs = import nixpkgs { inherit system; };
+      });
   in {
     nixosConfigurations.sdImage = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
@@ -26,9 +29,9 @@
     };
 
     nixosModules = rec {
-      stratum = ./default.nix;
-      sdImage = ./modules/sd-image;
+      stratum = ( import ./default.nix { inherit klokkijker; } );
       default = stratum;
+      sdImage = ./modules/sd-image;
     };
 
     packages = forAllDevSystems ( { pkgs }: {
