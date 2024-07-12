@@ -21,6 +21,7 @@ in {
       pps-tools
       dtc
       klokkijker.packages."${pkgs.system}".default
+      ethtool
     ];
 
     environment.etc."stratum/flake.nix".source = ./flake.nix.example;
