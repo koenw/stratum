@@ -44,7 +44,7 @@ in {
 
       domain = mkOption {
         type = types.str;
-        default = string.concatStrings [ "grafana" "." cfg.klokkijker.fqdn ];
+        default = strings.concatStrings [ "grafana" "." cfg.klokkijker.fqdn ];
         example = "grafana.time.example.com";
         description = (mdDoc "The domain that grafana will be listening on. This domain should be globally resolvable for ACME and point to us.");
       };
