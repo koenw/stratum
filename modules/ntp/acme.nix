@@ -11,7 +11,7 @@ in {
           "chronyd.service"
         ];
         email = cfg.email;
-
+        webroot = config.services.nginx.virtualHosts."${cfg.fqdn}".acmeRoot;
         postRun = ''
           systemctl start copyNTSCertificate.service
         '';
@@ -56,7 +56,7 @@ in {
     services.nginx = {
       enable = true;
       virtualHosts = {
-        "tik.koenw.dev" = {
+        "${cfg.fqdn}" = {
           enableACME = true;
           extraConfig = mkIf super.ntppool.redirects.enable ''
             location / {
