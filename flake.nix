@@ -1,5 +1,5 @@
 {
-  description = "";
+  description = "Stratum 1 NTP server with Raspberry Pi + GPS + NixOS";
 
   inputs = {
     nixos.url = "nixpkgs/23.11"; # for live media

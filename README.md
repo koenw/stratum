@@ -1,6 +1,6 @@
 # Stratum
 
-NixOS + Raspberry Pi + GNSS (GPS) receiver = Stratum
+Stratum 1 NTP server with Raspberry Pi + GPS + NixOS
 
 Easily customizable images for the Raspberry Pi make running a highly accurate
 [stratum 1][ntporg-stratum-1] time server accessible and practical. All you
