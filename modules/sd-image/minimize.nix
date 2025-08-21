@@ -1,8 +1,6 @@
 { config, lib, ... }:
 with lib;
 {
-  environment.noXlibs = mkDefault true;
-
   environment.defaultPackages = [ ];
 
   # Prevent pulling in perl, and we're not using containers anyway (we *are*
